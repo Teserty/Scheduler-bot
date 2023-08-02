@@ -1,9 +1,5 @@
 from urllib.parse import urlencode
-import requests
-import json
-import time
-import datetime
-import os
+import os, datetime, time, json, requests, sys
 import pandas as pd
 mouths = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь",
           "Декабрь"]
@@ -64,7 +60,8 @@ def sendMessage(text):
     resp = requests.post(url='https://botapi.messenger.yandex.net/bot/v1/messages/sendText/',
                          data=json.dumps(data),
                          headers=headers)
-    print(resp.text)
+    sys.stdout.write('Sended\n')
+    sys.stdout.write(f'{resp.text}\n')
 
 
 def getTextToday():
@@ -75,7 +72,7 @@ def getTextToday():
         if input_data[i] == 'м':
             monitors.append(i)
     text+="⏰️Мониторящий сегодня: 🍀**{}**🍀\n".format(", ".join(monitors))
-    print(text)
+    sys.stdout.write(f'{text}\n')
     return text
 
 
@@ -88,18 +85,24 @@ def getTextNextDay():
         if input_data[i] == 'м':
             monitors.append(i)
     text += "⏰️Мониторящий завтра: 🍀**{}**🍀".format(", ".join(monitors))
-    print(text)
+    sys.stdout.write(f'{text}\n')
     return text
 
 
+sys.stdout.write('Started\n')
 while 1:
-    dt = datetime.datetime.utcnow().strftime("%H:%M")
-    if dt == LATE_TIME:
-        get_file("downloaded_file.xlsx")
-        time.sleep(6000)
-        sendMessage(getTextNextDay())
-    elif dt == MORNING_TIME:
-        get_file("downloaded_file.xlsx")
-        sendMessage(getTextToday())
-        time.sleep(6000)
+    try:
+        dt = datetime.datetime.utcnow().strftime("%H:%M")
+        if dt == LATE_TIME:
+            sys.stdout.write(f'{dt} \n')
+            get_file("downloaded_file.xlsx")
+            time.sleep(6000)
+            sendMessage(getTextNextDay())
+        elif dt == MORNING_TIME:
+            sys.stdout.write(f'{dt} \n')
+            get_file("downloaded_file.xlsx")
+            sendMessage(getTextToday())
+            time.sleep(6000)
+    except Exception as e:
+        sys.stdout.write(f'!!!\n{e} \n')
     time.sleep(30)
